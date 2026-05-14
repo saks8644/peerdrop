@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Join PeerDrop{% endblock %}
+
+{% block content %}
+<section class="page-panel page-panel-narrow">
+    <div class="page-panel-header">
+        <div>
+            <p class="eyebrow">Peer session</p>
+            <h1>Join PeerDrop</h1>
+        </div>
+    </div>
+
+    <form method="post" class="upload-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="error">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="form-group">
+            {{ form.username.label_tag }}
+            {{ form.username }}
+            {% if form.username.help_text %}
+            <p class="field-help">{{ form.username.help_text }}</p>
+            {% endif %}
+            {% if form.username.errors %}
+            <div class="error">{{ form.username.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'peer:index' %}" class="btn btn-muted">Home</a>
+            <button type="submit" class="btn btn-primary">Join</button>
+        </div>
+    </form>
+</section>
+{% endblock %}

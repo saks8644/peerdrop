@@ -1,0 +1,544 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - PeerDrop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .welcome {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .welcome h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .peer-info {
+            background: #e8f4fd;
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .section {
+            background: white;
+            margin-bottom: 2rem;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-header {
+            background: #667eea;
+            color: white;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .btn {
+            align-items: center;
+            background: #16a34a;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(22, 163, 74, 0.25);
+            color: white;
+            display: inline-flex;
+            font-size: 0.9rem;
+            font-weight: 700;
+            justify-content: center;
+            min-height: 40px;
+            padding: 0.6rem 1rem;
+            text-decoration: none;
+            transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        
+        .btn:hover {
+            background: #15803d;
+            box-shadow: 0 10px 24px rgba(22, 163, 74, 0.32);
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: #2563eb;
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+        }
+        
+        .btn-primary:hover {
+            background: #1d4ed8;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+        }
+
+        .btn-cta {
+            font-size: 0.95rem;
+            margin-top: 1.1rem;
+            min-width: 190px;
+            padding: 0.75rem 1.2rem;
+        }
+        
+        .section-content {
+            padding: 1.5rem;
+        }
+        
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .file-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .file-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+        
+        .file-info {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-sm {
+            padding: 0.3rem 0.6rem;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background 0.3s;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #138496;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        
+        .empty-state {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            color: #374151;
+            font-size: 1.2rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 0;
+        }
+        
+        .empty-state img {
+            width: 100px;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+        
+        .transfer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .transfer-item:last-child {
+            border-bottom: none;
+        }
+        
+        .transfer-info h4 {
+            margin-bottom: 0.25rem;
+            color: #333;
+        }
+        
+        .transfer-meta {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-pending {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+        
+        .status-active {
+            background: #55efc4;
+            color: #00b894;
+        }
+        
+        .status-completed {
+            background: #a8e6cf;
+            color: #27ae60;
+        }
+        
+        .status-failed {
+            background: #ffcccb;
+            color: #e74c3c;
+        }
+        
+        .peer-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .peer-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .peer-avatar {
+            width: 50px;
+            height: 50px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .online-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #28a745;
+            border-radius: 50%;
+            margin-left: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .file-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .peer-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="{% url 'peer:index' %}" class="logo">PeerDrop</a>
+            <ul class="nav-links">
+                <li><a href="{% url 'peer:dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'peer:file_list' %}">Browse Files</a></li>
+                <li><a href="{% url 'peer:upload_file' %}">Upload</a></li>
+                <li><a href="{% url 'peer:peer_list' %}">Peers</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Welcome Section -->
+        <div class="welcome">
+            <h1>Welcome back, {{ peer.username }}!</h1>
+            <div class="peer-info">
+                <strong>Peer ID:</strong> {{ peer.peer_id }}<br>
+                <strong>IP Address:</strong> {{ peer.ip_address }}:{{ peer.port }}<br>
+                <strong>Status:</strong> 
+                {% if peer.is_online %}
+                    <span style="color: #28a745;">Online</span>
+                {% else %}
+                    <span style="color: #dc3545;">Offline</span>
+                {% endif %}
+                <br>
+                <strong>Last Seen:</strong> {{ peer.last_seen|date:"M d, Y H:i" }}
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-number">{{ my_files.count }}</span>
+                <div class="stat-label">My Files</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ total_downloads }}</span>
+                <div class="stat-label">Total Downloads</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ recent_transfers.count }}</span>
+                <div class="stat-label">Recent Transfers</div>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number">{{ connected_peers.count }}</span>
+                <div class="stat-label">Connected Peers</div>
+            </div>
+        </div>
+
+        <!-- My Files Section -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">My Shared Files</div>
+                <a href="{% url 'peer:upload_file' %}" class="btn">+ Upload File</a>
+            </div>
+            <div class="section-content">
+                {% if my_files %}
+                    <div class="file-grid">
+                        {% for file in my_files %}
+                        <div class="file-card">
+                            <div class="file-name">{{ file.filename }}</div>
+                            <div class="file-info">
+                                Size: {{ file.file_size_display }}<br>
+                                Type: {{ file.file_type|title }}<br>
+                                Downloads: {{ file.download_count }}<br>
+                                Shared: {{ file.created_at|date:"M d, Y" }}
+                            </div>
+                            <div class="file-actions">
+                                <a href="{% url 'peer:file_detail' file.file_id %}" class="btn-sm btn-info">View</a>
+                                <a href="{% url 'peer:download_file' file.file_id %}" class="btn-sm btn-primary">Download</a>
+                                <a href="{% url 'peer:delete_file' file.file_id %}" class="btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this file?')">Delete</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <h3>No files shared yet</h3>
+                        <p>Upload your first file to start sharing with the network!</p>
+                        <a href="{% url 'peer:upload_file' %}" class="btn btn-cta">Upload Your First File</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Transfers Section -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Recent Transfers</div>
+                <a href="#" class="btn btn-primary">View All</a>
+            </div>
+            <div class="section-content">
+                {% if recent_transfers %}
+                    {% for transfer in recent_transfers %}
+                    <div class="transfer-item">
+                        <div class="transfer-info">
+                            <h4>{{ transfer.shared_file.filename }}</h4>
+                            <div class="transfer-meta">
+                                {% if transfer.requester_peer == peer %}
+                                    Downloaded from {{ transfer.provider_peer.username }}
+                                {% else %}
+                                    Uploaded to {{ transfer.requester_peer.username }}
+                                {% endif %}
+                                | {{ transfer.created_at|date:"M d, H:i" }}
+                            </div>
+                        </div>
+                        <div>
+                            <span class="status-badge status-{{ transfer.status }}">
+                                {{ transfer.status }}
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">                        <h3>No transfers yet</h3>
+                        <p>Start downloading files from other peers to see transfer history here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Connected Peers Section -->
+        <div class="section">
+            <div class="section-header">
+                <div class="section-title">Connected Peers</div>
+                <a href="{% url 'peer:peer_list' %}" class="btn btn-primary">View All Peers</a>
+            </div>
+            <div class="section-content">
+                {% if connected_peers %}
+                    <div class="peer-list">
+                        {% for connected_peer in connected_peers %}
+                        <div class="peer-card">
+                            <div class="peer-avatar">
+                                {{ connected_peer.username|first|upper }}
+                            </div>
+                            <div>
+                                <strong>{{ connected_peer.username }}</strong>
+                                <span class="online-indicator"></span>
+                            </div>
+                            <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">
+                                {{ connected_peer.shared_files.count }} files
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">                        <h3>No peers online</h3>
+                        <p>Waiting for other peers to join the network...</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Auto-refresh dashboard data every 30 seconds
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/peers/status/');
+                const data = await response.json();
+                // Update stats if needed
+                console.log('Dashboard updated:', data);
+            } catch (error) {
+                console.log('Failed to update dashboard:', error);
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
+
+

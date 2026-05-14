@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}{{ file.filename }}{% endblock %}
+
+{% block content %}
+<section class="page-panel">
+    <div class="page-panel-header">
+        <div>
+            <p class="eyebrow">File details</p>
+            <h1 class="break-title">{{ file.filename }}</h1>
+        </div>
+        <span class="type-pill">{{ file.file_type|title }}</span>
+    </div>
+
+    <dl class="detail-grid">
+        <div>
+            <dt>Size</dt>
+            <dd>{{ file.get_file_size_display }}</dd>
+        </div>
+        <div>
+            <dt>Shared by</dt>
+            <dd>{{ file.peer.username }}</dd>
+        </div>
+        <div>
+            <dt>Uploaded</dt>
+            <dd>{{ file.created_at|date:"F j, Y, g:i a" }}</dd>
+        </div>
+        <div>
+            <dt>Downloads</dt>
+            <dd>{{ file.download_count }}</dd>
+        </div>
+    </dl>
+
+    <div class="description-block">
+        <h2>Description</h2>
+        <p>{{ file.description|default:"No description provided." }}</p>
+    </div>
+
+    <div class="form-actions">
+        <a href="{% url 'peer:file_list' %}" class="btn btn-muted">Back to Files</a>
+        {% if is_owner %}
+        <a href="{% url 'peer:delete_file' file.file_id %}" class="btn btn-danger">Delete</a>
+        {% endif %}
+        <a href="{% url 'peer:download_file' file.file_id %}" class="btn btn-primary">Download</a>
+    </div>
+</section>
+{% endblock %}

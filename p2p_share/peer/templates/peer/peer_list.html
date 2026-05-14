@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Peers - P2P Network</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="white" opacity="0.1"/><circle cx="80" cy="80" r="3" fill="white" opacity="0.1"/><circle cx="40" cy="70" r="1" fill="white" opacity="0.1"/></svg>');
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .nav-bar {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+        
+        .peers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .peer-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .peer-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .peer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .peer-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .peer-avatar {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .peer-info h3 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+            font-size: 1.2em;
+        }
+        
+        .peer-status {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9em;
+            color: #28a745;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #28a745;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .peer-details {
+            margin: 15px 0;
+            color: #6c757d;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        .peer-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.85em;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .pagination a, .pagination .current {
+            padding: 10px 15px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #667eea;
+            transition: all 0.3s ease;
+        }
+        
+        .pagination a:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .pagination .current {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .no-peers {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .no-peers h3 {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .nav-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-form {
+                max-width: none;
+            }
+            
+            .stats {
+                justify-content: center;
+            }
+            
+            .peers-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1>🌐 Online Peers</h1>
+                <p>Connect and share with peers across the network</p>
+            </div>
+        </div>
+        
+        <div class="nav-bar">
+            <form class="search-form" method="get">
+                <input 
+                    type="text" 
+                    name="search" 
+                    value="{{ query }}" 
+                    placeholder="Search peers by username..." 
+                    class="search-input"
+                >
+                <button type="submit" class="btn btn-primary">
+                    🔍 Search
+                </button>
+            </form>
+            <div>
+                <a href="{% url 'peer:dashboard' %}" class="btn btn-secondary">
+                    📊 Dashboard
+                </a>
+                <a href="{% url 'peer:file_list' %}" class="btn btn-secondary">
+                    📁 Browse Files
+                </a>
+            </div>
+        </div>
+        
+        <div class="content">
+            <div class="stats-bar">
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ page_obj.paginator.count }}</span>
+                        <span class="stat-label">Online Peers</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">{{ page_obj|length }}</span>
+                        <span class="stat-label">Showing</span>
+                    </div>
+                </div>
+                {% if query %}
+                <div>
+                    <span style="color: #6c757d;">Search results for: </span>
+                    <strong>"{{ query }}"</strong>
+                    <a href="{% url 'peer:peer_list' %}" class="btn btn-sm" style="margin-left: 10px;">Clear</a>
+                </div>
+                {% endif %}
+            </div>
+            
+            {% if page_obj %}
+                <div class="peers-grid">
+                    {% for peer in page_obj %}
+                        <div class="peer-card">
+                            <div class="peer-header">
+                                <div class="peer-avatar">
+                                    {{ peer.username|first|upper }}
+                                </div>
+                                <div class="peer-info">
+                                    <h3>{{ peer.username }}</h3>
+                                    <div class="peer-status">
+                                        <span class="status-dot"></span>
+                                        Online
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="peer-details">
+                                <div><strong>IP:</strong> {{ peer.ip_address }}</div>
+                                <div><strong>Port:</strong> {{ peer.port }}</div>
+                                <div><strong>Last Seen:</strong> {{ peer.last_seen|timesince }} ago</div>
+                                <div><strong>Joined:</strong> {{ peer.created_at|date:"M d, Y" }}</div>
+                            </div>
+                            
+                            <div class="peer-actions">
+                                <a href="{% url 'peer:peer_detail' peer.peer_id %}" class="btn btn-primary btn-sm">
+                                    👤 View Profile
+                                </a>
+                                <a href="{% url 'peer:file_list' %}?search={{ peer.username }}" class="btn btn-secondary btn-sm">
+                                    📁 Their Files
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                    <div class="pagination">
+                        {% if page_obj.has_previous %}
+                            <a href="?page=1{% if query %}&search={{ query }}{% endif %}">&laquo; First</a>
+                            <a href="?page={{ page_obj.previous_page_number }}{% if query %}&search={{ query }}{% endif %}">Previous</a>
+                        {% endif %}
+                        
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <span class="current">{{ num }}</span>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <a href="?page={{ num }}{% if query %}&search={{ query }}{% endif %}">{{ num }}</a>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if query %}&search={{ query }}{% endif %}">Next</a>
+                            <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&search={{ query }}{% endif %}">Last &raquo;</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+                
+            {% else %}
+                <div class="no-peers">
+                    <h3>No peers found</h3>
+                    {% if query %}
+                        <p>No peers match your search for "{{ query }}".</p>
+                        <a href="{% url 'peer:peer_list' %}" class="btn btn-primary" style="margin-top: 15px;">
+                            View All Peers
+                        </a>
+                    {% else %}
+                        <p>No peers are currently online. Be the first to join the network!</p>
+                        <a href="{% url 'peer:register_peer' %}" class="btn btn-primary" style="margin-top: 15px;">
+                            Join Network
+                        </a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

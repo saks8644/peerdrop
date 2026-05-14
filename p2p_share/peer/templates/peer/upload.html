@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload File{% endblock %}
+
+{% block content %}
+<section class="page-panel page-panel-narrow">
+    <div class="page-panel-header">
+        <div>
+            <p class="eyebrow">Share a file</p>
+            <h1>Upload File</h1>
+        </div>
+        <a href="{% url 'peer:dashboard' %}" class="btn btn-muted">Dashboard</a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" class="upload-form" data-max-size-mb="100">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="error">
+            {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="form-group">
+            <label for="{{ form.file_path.id_for_label }}">Choose File</label>
+            {{ form.file_path }}
+            <p class="field-help">Maximum file size: 100 MB.</p>
+            {% if form.file_path.errors %}
+            <div class="error">
+                {% for error in form.file_path.errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+            <div class="error">
+                {% for error in form.description.errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'peer:file_list' %}" class="btn btn-muted">Browse Files</a>
+            <button type="submit" class="btn btn-primary">Upload File</button>
+        </div>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/file-upload.js' %}"></script>
+{% endblock %}

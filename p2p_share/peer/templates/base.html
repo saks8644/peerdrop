@@ -1,0 +1,43 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PeerDrop{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="app-shell">
+    <header class="app-header">
+        <nav class="app-nav">
+            <a href="{% url 'peer:index' %}" class="app-logo">PeerDrop</a>
+            <ul class="app-nav-links">
+                <li><a href="{% url 'peer:file_list' %}">Browse Files</a></li>
+                <li><a href="{% url 'peer:upload_file' %}">Upload</a></li>
+                <li><a href="{% url 'peer:peer_list' %}">Peers</a></li>
+                <li><a href="{% url 'peer:dashboard' %}">Dashboard</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="app-main">
+        {% if messages %}
+        <div class="message-stack">
+            {% for message in messages %}
+            <div class="app-message app-message-{{ message.tags|default:'info' }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2025 PeerDrop. Built with Django and WebSockets.</p>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

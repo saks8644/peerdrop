@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Delete {{ file.filename }}{% endblock %}
+
+{% block content %}
+<section class="page-panel page-panel-narrow">
+    <div class="page-panel-header">
+        <div>
+            <p class="eyebrow">Delete file</p>
+            <h1 class="break-title">{{ file.filename }}</h1>
+        </div>
+    </div>
+
+    <div class="description-block">
+        <h2>Are you sure?</h2>
+        <p>This will remove the file from PeerDrop and delete it from local storage. This action cannot be undone.</p>
+    </div>
+
+    <form method="post" class="form-actions">
+        {% csrf_token %}
+        <a href="{% url 'peer:file_detail' file.file_id %}" class="btn btn-muted">Cancel</a>
+        <button type="submit" class="btn btn-danger">Delete File</button>
+    </form>
+</section>
+{% endblock %}

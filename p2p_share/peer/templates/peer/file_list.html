@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Files - PeerDrop</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            color: white;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1rem;
+            list-style: none;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .page-header h1 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .search-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+        
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+        }
+        
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .file-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .file-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .file-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+            word-break: break-word;
+        }
+        
+        .file-description {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0.5rem 0 1rem 0;
+            line-height: 1.4;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.85rem;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #138496;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+        }
+        
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .form-group {
+                min-width: unset;
+            }
+            
+            .files-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <a href="{% url 'peer:index' %}" class="logo">PeerDrop</a>
+            <ul class="nav-links">
+                <li><a href="{% url 'peer:dashboard' %}">Dashboard</a></li>
+                <li><a href="{% url 'peer:file_list' %}">Browse Files</a></li>
+                <li><a href="{% url 'peer:upload_file' %}">Upload</a></li>
+                <li><a href="{% url 'peer:peer_list' %}">Peers</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>Browse Files</h1>
+            <p>Discover and download shared files in PeerDrop</p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <form method="GET" class="search-form">
+                <div class="form-group">
+                    <label for="search">Search Files</label>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        id="search" 
+                        class="form-control" 
+                        placeholder="Search by filename or description..."
+                        value="{{ query }}"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="type">File Type</label>
+                    <select name="type" id="type" class="form-control">
+                        <option value="">All Types</option>
+                        {% for value, label in file_types %}
+                            <option value="{{ value }}" {% if value == selected_type %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn">Search</button>
+                <a href="{% url 'peer:file_list' %}" class="btn btn-secondary">Reset</a>
+            </form>
+        </div>
+
+        <!-- Files Grid -->
+        {% if files %}
+            <div class="files-grid">
+                {% for file in files %}
+                    <div class="file-card">
+                        <div class="file-name">{{ file.filename }}</div>
+                        <div class="file-description">{{ file.description|default:"No description" }}</div>
+                        <a href="{% url 'peer:download_file' file.file_id %}" class="btn-sm btn-primary">Download</a>
+                        <a href="{% url 'peer:file_detail' file.file_id %}" class="btn-sm btn-info">Details</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">                <p>No files found. Try adjusting your search or filters.</p>
+            </div>
+        {% endif %}
+    </main>
+</body>
+</html>
+
+

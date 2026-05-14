@@ -1,0 +1,17 @@
+.env
+*.pyc
+__pycache__/
+.pytest_cache/
+.coverage
+
+venv/
+.venv/
+p2p_share/.venv/
+
+p2p_share/db.sqlite3
+p2p_share/staticfiles/
+p2p_share/media/
+logs/
+
+*.log
+*.sqlite3

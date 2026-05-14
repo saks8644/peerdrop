@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Download Files{% endblock %}
+
+{% block content %}
+<section class="page-panel">
+    <div class="page-panel-header">
+        <div>
+            <p class="eyebrow">Network files</p>
+            <h1>Available Downloads</h1>
+        </div>
+        <a href="{% url 'peer:file_list' %}" class="btn btn-muted">Browse Files</a>
+    </div>
+
+    {% if files %}
+    <div class="download-list">
+        {% for file in files %}
+        <div class="download-row">
+            <div>
+                <h2>{{ file.filename }}</h2>
+                <p>{{ file.file_size_display }} by {{ file.peer.username }}</p>
+            </div>
+            <a href="{% url 'peer:download_file' file.file_id %}" class="btn btn-primary">Download</a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state-panel">
+        <h2>No files available</h2>
+        <p>Uploaded files will appear here when peers share them.</p>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
