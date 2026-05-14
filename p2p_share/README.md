@@ -1,15 +1,15 @@
 # P2P File Share
 
-A Django-based peer-to-peer style file sharing application. Users can register as peers, upload files, browse shared files from other peers, download files, and monitor transfer activity.
+A Django-based centralized file sharing application. Users can register as peers, upload files, browse shared files from other users, download files, and monitor transfer activity.
 
 ## Features
 
-- Peer registration and login via username
-- Peer dashboard with uploaded files and recent transfers
+- User registration and login via username
+- User dashboard with uploaded files and recent transfers
 - File sharing with upload, download, detail view, and delete support
-- Search and filter shared files by name, description, peer, or file type
-- Peer listing with online status
-- Basic API endpoints for peer status, file search, and transfer tracking
+- Search and filter shared files by name, description, user, or file type
+- User listing with online status
+- Basic API endpoints for status, file search, and transfer tracking
 - SQLite database for easy local setup
 - File uploads stored in `media/shared_files/`
 
@@ -106,7 +106,8 @@ Key settings supported:
 
 - The project uses Django Channels with an in-memory channel layer for ASGI support.
 - The default file upload limit is configured in `settings.py` as 100MB.
-- This application is intended for local development and demonstration purposes.
+- This application is a centralized file sharing demo, not a true peer-to-peer network.
+- It is intended for local development and demonstration purposes.
 
 ## License
 
