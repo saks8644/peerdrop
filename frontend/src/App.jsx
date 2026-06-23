@@ -214,6 +214,7 @@ function RegisterPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -221,14 +222,17 @@ function RegisterPage() {
     setSuccess('');
     setLoading(true);
     try {
-      const data = await apiFetch('/api/auth/register/', {
+      await apiFetch('/api/auth/register/', {
         method: 'POST',
         body: JSON.stringify({ username, email, password })
       });
-      setSuccess(data.message || 'Account created successfully! Verification email sent.');
+      setSuccess('Account created successfully! Redirecting to login page...');
       setUsername('');
       setEmail('');
       setPassword('');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
     } catch (err) {
       setError(err.message);
     } finally {

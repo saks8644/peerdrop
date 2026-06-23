@@ -130,7 +130,7 @@ def api_peer_status(request):
 # Authentication API Endpoints
 @csrf_exempt
 def api_register(request):
-    """Handles User Registration and triggers verification email"""
+    """Handles User Registration and creates an active user account directly"""
     if request.method != 'POST':
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     try:
@@ -148,12 +148,12 @@ def api_register(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({'error': 'Email already registered'}, status=400)
         
-        # Create inactive user
+        # Create active user (email verification disabled)
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password,
-            is_active=False
+            is_active=True
         )
         
         # Create associated Peer
@@ -163,24 +163,7 @@ def api_register(request):
             port=settings.P2P_DEFAULT_PORT
         )
         
-        # Generate token and uid
-        token = default_token_generator.make_token(user)
-        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-        
-        # Determine current request host dynamically for verification link
-        host = request.get_host()
-        if "localhost" in host or "127.0.0.1" in host:
-            origin = "http://localhost:5173"
-        else:
-            proto = "https" if request.is_secure() else "http"
-            origin = f"{proto}://{host}"
-        
-        verification_link = f"{origin}/verify-email/{uidb64}/{token}"
-        
-        # Send using Resend / Console helper
-        send_verification_email(username, email, verification_link)
-        
-        return JsonResponse({'message': 'Registration successful. Verification email sent.'}, status=201)
+        return JsonResponse({'message': 'Registration successful. You can now log in.'}, status=201)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 

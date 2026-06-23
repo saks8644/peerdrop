@@ -41,8 +41,7 @@ class P2PApiTests(TestCase):
             is_online=True
         )
 
-    @patch('peer.views.send_verification_email')
-    def test_api_registration_creates_inactive_user_and_sends_email(self, mock_send_email):
+    def test_api_registration_creates_active_user(self):
         response = self.client.post(
             '/api/auth/register/',
             data=json.dumps({
@@ -56,16 +55,9 @@ class P2PApiTests(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertIn('Registration successful', response.json()['message'])
         
-        # Verify user state
+        # Verify user state is immediately active
         new_user = User.objects.get(username='newuser')
-        self.assertFalse(new_user.is_active)
-        
-        # Verify mock email helper was called
-        mock_send_email.assert_called_once()
-        args, kwargs = mock_send_email.call_args
-        self.assertEqual(args[0], 'newuser')
-        self.assertEqual(args[1], 'newuser@p2p.local')
-        self.assertIn('/verify-email/', args[2])
+        self.assertTrue(new_user.is_active)
 
     def test_api_verification_activates_user(self):
         # Create an inactive user
