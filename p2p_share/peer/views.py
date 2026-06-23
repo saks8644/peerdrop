@@ -42,6 +42,9 @@ def get_client_ip(request):
 
 # Helper to send email via Resend HTTPS API or print to Console log
 def send_verification_email(username, email, verification_link):
+    # Always print verification link to the server console as a backup
+    print(f"\n[EMAIL BACKUP] Verification link for user '{username}': {verification_link}\n")
+    
     resend_api_key = os.getenv('RESEND_API_KEY', '')
     
     if resend_api_key:
@@ -74,9 +77,18 @@ def send_verification_email(username, email, verification_link):
         try:
             with urllib.request.urlopen(req) as response:
                 response.read()
+            print(f"Successfully sent verification email to {email} via Resend.")
+        except urllib.error.HTTPError as e:
+            error_body = ""
+            try:
+                error_body = e.read().decode('utf-8')
+            except Exception:
+                pass
+            print(f"Resend API HTTP Error {e.code}: {e.reason}. Response body: {error_body}")
+            print_to_console(username, email, verification_link)
         except Exception as e:
             # Fall back to console log if API fails
-            print(f"Resend API error: {str(e)}. Falling back to console logging.")
+            print(f"Resend API unexpected error: {str(e)}. Falling back to console logging.")
             print_to_console(username, email, verification_link)
     else:
         print_to_console(username, email, verification_link)
@@ -129,13 +141,13 @@ def api_register(request):
         
         if not username or not email or not password:
             return JsonResponse({'error': 'Missing required fields'}, status=400)
-            
+        
         if User.objects.filter(username=username).exists():
             return JsonResponse({'error': 'Username already exists'}, status=400)
-            
+        
         if User.objects.filter(email=email).exists():
             return JsonResponse({'error': 'Email already registered'}, status=400)
-            
+        
         # Create inactive user
         user = User.objects.create_user(
             username=username,
@@ -162,8 +174,8 @@ def api_register(request):
         else:
             proto = "https" if request.is_secure() else "http"
             origin = f"{proto}://{host}"
-            
-        verification_link = f"{origin}/verify-email/{uidb64}/{token}/"
+        
+        verification_link = f"{origin}/verify-email/{uidb64}/{token}"
         
         # Send using Resend / Console helper
         send_verification_email(username, email, verification_link)
