@@ -225,7 +225,7 @@ function RegisterPage() {
         method: 'POST',
         body: JSON.stringify({ username, email, password })
       });
-      setSuccess('Account created successfully! Since we are in development mode, please look at your Django server console logs to retrieve the account verification email link.');
+      setSuccess(data.message || 'Account created successfully! Verification email sent.');
       setUsername('');
       setEmail('');
       setPassword('');
