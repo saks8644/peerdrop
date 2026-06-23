@@ -2,6 +2,7 @@ import tempfile
 import shutil
 from pathlib import Path
 import json
+from unittest.mock import patch
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -10,7 +11,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from django.core import mail
 
 from .models import FileTransfer, Peer, SharedFile
 
@@ -41,8 +41,8 @@ class P2PApiTests(TestCase):
             is_online=True
         )
 
-    def test_api_registration_creates_inactive_user_and_sends_email(self):
-        mail.outbox = [] # Clear mail box
+    @patch('peer.views.send_verification_email')
+    def test_api_registration_creates_inactive_user_and_sends_email(self, mock_send_email):
         response = self.client.post(
             '/api/auth/register/',
             data=json.dumps({
@@ -60,10 +60,12 @@ class P2PApiTests(TestCase):
         new_user = User.objects.get(username='newuser')
         self.assertFalse(new_user.is_active)
         
-        # Verify email was sent
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertIn('Verify your PeerDrop Account', mail.outbox[0].subject)
-        self.assertEqual(mail.outbox[0].to, ['newuser@p2p.local'])
+        # Verify mock email helper was called
+        mock_send_email.assert_called_once()
+        args, kwargs = mock_send_email.call_args
+        self.assertEqual(args[0], 'newuser')
+        self.assertEqual(args[1], 'newuser@p2p.local')
+        self.assertIn('/verify-email/', args[2])
 
     def test_api_verification_activates_user(self):
         # Create an inactive user

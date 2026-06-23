@@ -1,5 +1,6 @@
 import json
 import os
+import urllib.request
 from functools import wraps
 from django.db import models, IntegrityError, transaction
 from django.db.models import Q
@@ -10,7 +11,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.core.mail import send_mail
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_exempt
 from django.middleware.csrf import get_token
 from django.utils import timezone
@@ -38,6 +38,58 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip or '127.0.0.1'
+
+
+# Helper to send email via Resend HTTPS API or print to Console log
+def send_verification_email(username, email, verification_link):
+    resend_api_key = os.getenv('RESEND_API_KEY', '')
+    
+    if resend_api_key:
+        url = "https://api.resend.com/emails"
+        from_email = os.getenv('DEFAULT_FROM_EMAIL', 'onboarding@resend.dev')
+        
+        payload = {
+            "from": from_email,
+            "to": [email],
+            "subject": "Verify your PeerDrop Account",
+            "text": (
+                f"Hi {username},\n\n"
+                f"Please verify your PeerDrop account by clicking the link below:\n\n"
+                f"{verification_link}\n\n"
+                f"Happy sharing!\n"
+                f"The PeerDrop Team"
+            )
+        }
+        
+        req = urllib.request.Request(
+            url,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                "Authorization": f"Bearer {resend_api_key}",
+                "Content-Type": "application/json"
+            },
+            method="POST"
+        )
+        
+        try:
+            with urllib.request.urlopen(req) as response:
+                response.read()
+        except Exception as e:
+            # Fall back to console log if API fails
+            print(f"Resend API error: {str(e)}. Falling back to console logging.")
+            print_to_console(username, email, verification_link)
+    else:
+        print_to_console(username, email, verification_link)
+
+
+def print_to_console(username, email, verification_link):
+    print("-------------------------------------------------------------------------------")
+    print("Content-Type: text/plain; charset=\"utf-8\"")
+    print("Subject: Verify your PeerDrop Account")
+    print("From: noreply@peerdrop.local")
+    print(f"To: {email}")
+    print(f"\nHi {username},\n\nPlease verify your PeerDrop account by clicking the link below:\n\n{verification_link}\n\nHappy sharing!\nThe PeerDrop Team")
+    print("-------------------------------------------------------------------------------")
 
 
 # CSRF Token Provider
@@ -103,24 +155,18 @@ def api_register(request):
         token = default_token_generator.make_token(user)
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         
-        # Send verification email
-        verification_link = f"http://localhost:5173/verify-email/{uidb64}/{token}/"
-        email_subject = "Verify your PeerDrop Account"
-        email_body = (
-            f"Hi {username},\n\n"
-            f"Please verify your PeerDrop account by clicking the link below:\n\n"
-            f"{verification_link}\n\n"
-            f"Happy sharing!\n"
-            f"The PeerDrop Team"
-        )
+        # Determine current request host dynamically for verification link
+        host = request.get_host()
+        if "localhost" in host or "127.0.0.1" in host:
+            origin = "http://localhost:5173"
+        else:
+            proto = "https" if request.is_secure() else "http"
+            origin = f"{proto}://{host}"
+            
+        verification_link = f"{origin}/verify-email/{uidb64}/{token}/"
         
-        send_mail(
-            email_subject,
-            email_body,
-            'noreply@peerdrop.local',
-            [email],
-            fail_silently=False,
-        )
+        # Send using Resend / Console helper
+        send_verification_email(username, email, verification_link)
         
         return JsonResponse({'message': 'Registration successful. Verification email sent.'}, status=201)
     except Exception as e:
