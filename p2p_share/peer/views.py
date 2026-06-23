@@ -135,8 +135,8 @@ def api_register(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     try:
         data = json.loads(request.body)
-        username = data.get('username')
-        email = data.get('email')
+        username = data.get('username', '').strip()
+        email = data.get('email', '').strip()
         password = data.get('password')
         
         if not username or not email or not password:
@@ -209,7 +209,7 @@ def api_login(request):
         return JsonResponse({'error': 'Method not allowed'}, status=405)
     try:
         data = json.loads(request.body)
-        username = data.get('username')
+        username = data.get('username', '').strip()
         password = data.get('password')
         
         try:
