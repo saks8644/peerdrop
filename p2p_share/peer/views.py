@@ -43,7 +43,7 @@ def get_client_ip(request):
 # Helper to send email via Resend HTTPS API or print to Console log
 def send_verification_email(username, email, verification_link):
     # Always print verification link to the server console as a backup
-    print(f"\n[EMAIL BACKUP] Verification link for user '{username}': {verification_link}\n")
+    print(f"\n[EMAIL BACKUP] Verification link for user '{username}': {verification_link}\n", flush=True)
     
     resend_api_key = os.getenv('RESEND_API_KEY', '')
     
@@ -77,31 +77,31 @@ def send_verification_email(username, email, verification_link):
         try:
             with urllib.request.urlopen(req) as response:
                 response.read()
-            print(f"Successfully sent verification email to {email} via Resend.")
+            print(f"Successfully sent verification email to {email} via Resend.", flush=True)
         except urllib.error.HTTPError as e:
             error_body = ""
             try:
                 error_body = e.read().decode('utf-8')
             except Exception:
                 pass
-            print(f"Resend API HTTP Error {e.code}: {e.reason}. Response body: {error_body}")
+            print(f"Resend API HTTP Error {e.code}: {e.reason}. Response body: {error_body}", flush=True)
             print_to_console(username, email, verification_link)
         except Exception as e:
             # Fall back to console log if API fails
-            print(f"Resend API unexpected error: {str(e)}. Falling back to console logging.")
+            print(f"Resend API unexpected error: {str(e)}. Falling back to console logging.", flush=True)
             print_to_console(username, email, verification_link)
     else:
         print_to_console(username, email, verification_link)
 
 
 def print_to_console(username, email, verification_link):
-    print("-------------------------------------------------------------------------------")
-    print("Content-Type: text/plain; charset=\"utf-8\"")
-    print("Subject: Verify your PeerDrop Account")
-    print("From: noreply@peerdrop.local")
-    print(f"To: {email}")
-    print(f"\nHi {username},\n\nPlease verify your PeerDrop account by clicking the link below:\n\n{verification_link}\n\nHappy sharing!\nThe PeerDrop Team")
-    print("-------------------------------------------------------------------------------")
+    print("-------------------------------------------------------------------------------", flush=True)
+    print("Content-Type: text/plain; charset=\"utf-8\"", flush=True)
+    print("Subject: Verify your PeerDrop Account", flush=True)
+    print("From: noreply@peerdrop.local", flush=True)
+    print(f"To: {email}", flush=True)
+    print(f"\nHi {username},\n\nPlease verify your PeerDrop account by clicking the link below:\n\n{verification_link}\n\nHappy sharing!\nThe PeerDrop Team", flush=True)
+    print("-------------------------------------------------------------------------------", flush=True)
 
 
 # CSRF Token Provider
