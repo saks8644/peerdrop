@@ -44,6 +44,17 @@ CSRF_TRUSTED_ORIGINS = [
     if origin.strip()
 ]
 
+# CORS Settings
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+]
+CORS_ALLOW_CREDENTIALS = True
+
+# Email configuration (for local testing, prints to console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@peerdrop.local'
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -55,12 +66,15 @@ INSTALLED_APPS = [
 
     # Third-party apps
     'channels',
+    'corsheaders',
+    'rest_framework',
 
     # Local apps
     'peer',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 
     # WhiteNoise for static files

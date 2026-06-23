@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 from django.contrib import admin
+from django.contrib.auth.models import User
 import uuid
 import hashlib
 import os
@@ -8,8 +9,8 @@ import os
 
 class Peer(models.Model):
     """Represents a peer in the P2P network"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='peer')
     peer_id = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
-    username = models.CharField(max_length=50, unique=True)
     ip_address = models.GenericIPAddressField()
     port = models.IntegerField(default=8000)
     is_online = models.BooleanField(default=False)
@@ -21,6 +22,10 @@ class Peer(models.Model):
 
     def __str__(self):
         return f"{self.username} ({self.ip_address}:{self.port})"
+
+    @property
+    def username(self):
+        return self.user.username
 
     def mark_online(self):
         self.is_online = True
