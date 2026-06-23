@@ -155,6 +155,7 @@ def api_register(request):
             password=password,
             is_active=True
         )
+        print(f"[REGISTER SUCCESS] Registered user '{username}' (email: '{email}')", flush=True)
         
         # Create associated Peer
         Peer.objects.create(
@@ -165,6 +166,7 @@ def api_register(request):
         
         return JsonResponse({'message': 'Registration successful. You can now log in.'}, status=201)
     except Exception as e:
+        print(f"[REGISTER FAILED] Error registering '{username if 'username' in locals() else 'unknown'}': {str(e)}", flush=True)
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -213,13 +215,16 @@ def api_login(request):
         try:
             user = User.objects.get(username=username)
         except User.DoesNotExist:
+            print(f"[LOGIN FAILED] Username '{username}' does not exist in the database.", flush=True)
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
             
         if user.check_password(password):
             if not user.is_active:
+                print(f"[LOGIN FAILED] User '{username}' is inactive.", flush=True)
                 return JsonResponse({'error': 'Please verify your email first.'}, status=403)
                 
             login(request, user)
+            print(f"[LOGIN SUCCESS] User '{username}' logged in successfully.", flush=True)
             
             # Ensure peer exists and mark online
             peer, created = Peer.objects.get_or_create(
@@ -244,8 +249,10 @@ def api_login(request):
                 }
             })
         else:
+            print(f"[LOGIN FAILED] Password mismatch for user '{username}'.", flush=True)
             return JsonResponse({'error': 'Invalid credentials'}, status=401)
     except Exception as e:
+        print(f"[LOGIN EXCEPTION] Error logging in '{username if 'username' in locals() else 'unknown'}': {str(e)}", flush=True)
         return JsonResponse({'error': str(e)}, status=500)
 
 
